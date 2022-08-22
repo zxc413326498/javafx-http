@@ -1,12 +1,12 @@
 package xuelian.server;
 
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 import xuelian.util.DialogUtil;
+import xuelian.util.HttpUtil;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Handler implements Runnable {
 
@@ -41,15 +41,27 @@ public class Handler implements Runnable {
                 message.appendText(msg+"\n");
                 System.out.println("Handler.run" + "----msg值= " + msg);
                 //调用微服务接口处理http事务
-                if("接口测试".equals(msg)){
-                    //显示弹窗
-                    DialogUtil.showDialogMessage("提示","测试","接口测试");
+                if(msg!=null&&msg.contains("接口测试")){
                     //调用接口
+                    boolean code=HttpUtil.sendGETString(msg);
+                    System.out.println("Handler.run" + "----code 值= " + code);
+                    //显示弹窗
+                    showDialog(code);
                 }
             }
 //            System.out.println("finish---------");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 显示弹窗
+     */
+    public void showDialog(boolean code) {
+        //用于在非UI线程更新UI界面
+        Platform.runLater(()->{
+            DialogUtil.showDialogMessage("提示","测试","接口测试"+code);
+        });
     }
 }
